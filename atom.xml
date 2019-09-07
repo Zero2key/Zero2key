@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>/Users/Suyh/Documents/Gridea/output</id>
+    <title>Zero2key&apos;s Blog</title>
+    <updated>2019-09-03T08:17:52.870Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="/Users/Suyh/Documents/Gridea/output"/>
+    <link rel="self" href="/Users/Suyh/Documents/Gridea/output/atom.xml"/>
+    <logo>/Users/Suyh/Documents/Gridea/output/images/avatar.png</logo>
+    <icon>/Users/Suyh/Documents/Gridea/output/favicon.ico</icon>
+    <rights>All rights reserved 2019, Zero2key&apos;s Blog</rights>
+</feed>
