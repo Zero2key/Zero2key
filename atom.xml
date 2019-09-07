@@ -2,11 +2,63 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Zero2key.github.io</id>
     <title>Zero2key&apos;s Blog</title>
-    <updated>2019-09-07T15:11:26.949Z</updated>
+    <updated>2019-09-07T15:38:19.007Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Zero2key.github.io"/>
     <link rel="self" href="https://Zero2key.github.io/atom.xml"/>
     <logo>https://Zero2key.github.io/images/avatar.png</logo>
     <icon>https://Zero2key.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, Zero2key&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[Redux 源码解析-简介]]></title>
+        <id>https://Zero2key.github.io/post/KbkMQoUmf</id>
+        <link href="https://Zero2key.github.io/post/KbkMQoUmf">
+        </link>
+        <updated>2019-09-07T15:18:53.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="简介">简介</h1>
+<p>Redux 是 JavaScript 状态容器，提供可预测化的状态管理。</p>
+<h1 id="安装">安装</h1>
+<pre><code class="language-bash">npm install redux --save
+# or
+yarn add redux
+</code></pre>
+<h1 id="概念">概念</h1>
+<p>Redux 中的 state 是以一个对象的形式存储在一个单一的 store 中。唯一可以更改 state 的方法是 dispatch 一个 action，一个描述发生了什么的对象。为了响应一个 action 如何修改 state，需要编写 reducers。</p>
+<pre><code class="language-js">import { createStore } from 'redux';
+
+/**
+ * 这是一个 reducer，形式为 (state, action) =&gt; state 的纯函数。
+ * 描述了 action 如何把 state 转变成下一个 state。
+ */
+function counter(state = 0, action) {
+  switch (action.type) {
+  case 'INCREMENT':
+    return state + 1;
+  case 'DECREMENT':
+    return state - 1;
+  default:
+    return state;
+  }
+}
+
+// 创建 Redux store 来存放应用的状态。
+// API 是 { subscribe, dispatch, getState }。
+let store = createStore(counter);
+
+// 可以手动订阅更新，也可以事件绑定到视图层。
+store.subscribe(() =&gt;
+  console.log(store.getState())
+);
+
+// 改变内部 state 惟一方法是 dispatch 一个 action。
+// action 可以被序列化，用日记记录和储存下来，后期还可以以回放的方式执行
+store.dispatch({ type: 'INCREMENT' });
+// 1
+store.dispatch({ type: 'INCREMENT' });
+// 2
+store.dispatch({ type: 'DECREMENT' });
+// 1
+</code></pre>
+]]></content>
+    </entry>
 </feed>

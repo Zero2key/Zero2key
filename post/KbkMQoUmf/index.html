@@ -1,0 +1,164 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Redux 源码解析-简介 | Zero2key&#39;s Blog</title>
+<link rel="shortcut icon" href="https://Zero2key.github.io/favicon.ico?v=1567870662680">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://Zero2key.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Zero2key.github.io">
+  <img class="avatar" src="https://Zero2key.github.io/images/avatar.png?v=1567870662680" alt="">
+  </a>
+  <h1 class="site-title">
+    Zero2key&#39;s Blog
+  </h1>
+  <p class="site-description">
+    
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+        <a href="https://github.com/Zero2key" target="_blank">
+          <i class="fab fa-github"></i>
+        </a>
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Redux 源码解析-简介
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2019-09-07 ·
+              </time>
+              
+                <a href="https://Zero2key.github.io/tag/redux" class="post-tag">
+                  # Redux
+                </a>
+              
+                <a href="https://Zero2key.github.io/tag/yuan-ma-jie-xi" class="post-tag">
+                  # 源码解析
+                </a>
+              
+            </div>
+            
+            <div class="post-content">
+              <h1 id="简介">简介</h1>
+<p>Redux 是 JavaScript 状态容器，提供可预测化的状态管理。</p>
+<h1 id="安装">安装</h1>
+<pre><code class="language-bash">npm install redux --save
+# or
+yarn add redux
+</code></pre>
+<h1 id="概念">概念</h1>
+<p>Redux 中的 state 是以一个对象的形式存储在一个单一的 store 中。唯一可以更改 state 的方法是 dispatch 一个 action，一个描述发生了什么的对象。为了响应一个 action 如何修改 state，需要编写 reducers。</p>
+<pre><code class="language-js">import { createStore } from 'redux';
+
+/**
+ * 这是一个 reducer，形式为 (state, action) =&gt; state 的纯函数。
+ * 描述了 action 如何把 state 转变成下一个 state。
+ */
+function counter(state = 0, action) {
+  switch (action.type) {
+  case 'INCREMENT':
+    return state + 1;
+  case 'DECREMENT':
+    return state - 1;
+  default:
+    return state;
+  }
+}
+
+// 创建 Redux store 来存放应用的状态。
+// API 是 { subscribe, dispatch, getState }。
+let store = createStore(counter);
+
+// 可以手动订阅更新，也可以事件绑定到视图层。
+store.subscribe(() =&gt;
+  console.log(store.getState())
+);
+
+// 改变内部 state 惟一方法是 dispatch 一个 action。
+// action 可以被序列化，用日记记录和储存下来，后期还可以以回放的方式执行
+store.dispatch({ type: 'INCREMENT' });
+// 1
+store.dispatch({ type: 'INCREMENT' });
+// 2
+store.dispatch({ type: 'DECREMENT' });
+// 1
+</code></pre>
+
+            </div>
+          </article>
+        </div>
+
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | 
+  <a class="rss" href="https://Zero2key.github.io/atom.xml" target="_blank">RSS</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>
