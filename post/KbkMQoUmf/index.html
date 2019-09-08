@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Redux 源码解析-简介 | Zero2key&#39;s Blog</title>
-<link rel="shortcut icon" href="https://Zero2key.github.io/favicon.ico?v=1567921907575">
+<link rel="shortcut icon" href="https://Zero2key.github.io/favicon.ico?v=1567921987869">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://Zero2key.github.io/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://Zero2key.github.io">
-  <img class="avatar" src="https://Zero2key.github.io/images/avatar.png?v=1567921907575" alt="">
+  <img class="avatar" src="https://Zero2key.github.io/images/avatar.png?v=1567921987869" alt="">
   </a>
   <h1 class="site-title">
     Zero2key&#39;s Blog
@@ -141,6 +141,32 @@ store.dispatch({ type: 'DECREMENT' });
 
         
 
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: '077888762ae810c37005',
+    clientSecret: 'c443e600f8e2687909ccd669db5353cd0839979a',
+    repo: 'Zero2key.github.io',
+    owner: 'Zero2key',
+    admin: ['Zero2key'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
         
 
         <div class="site-footer">
