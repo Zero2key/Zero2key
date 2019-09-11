@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>Redux 源码解析-简介 | Zero2key&#39;s Blog</title>
+<title>Redux 源码解析-bindActionCreators | Zero2key&#39;s Blog</title>
 <meta name="description" content="">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -92,53 +92,49 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">Redux 源码解析-简介</h2>
-            <div class="post-date">2019-09-07</div>
+            <h2 class="post-title">Redux 源码解析-bindActionCreators</h2>
+            <div class="post-date">2019-09-11</div>
             
             <div class="post-content">
-              <h2 id="简介">简介</h2>
-<p>Redux 是 JavaScript 状态容器，提供可预测化的状态管理。</p>
-<h2 id="安装">安装</h2>
-<pre><code class="language-bash">npm install redux --save
-# or
-yarn add redux
-</code></pre>
-<h2 id="概念">概念</h2>
-<p>Redux 中的 state 是以一个对象的形式存储在一个单一的 store 中。唯一可以更改 state 的方法是 dispatch 一个 action，一个描述发生了什么的对象。为了响应一个 action 如何修改 state，需要编写 reducers。</p>
-<pre><code class="language-js">import { createStore } from 'redux';
-
-/**
- * 这是一个 reducer，形式为 (state, action) =&gt; state 的纯函数。
- * 描述了 action 如何把 state 转变成下一个 state。
- */
-function counter(state = 0, action) {
-  switch (action.type) {
-  case 'INCREMENT':
-    return state + 1;
-  case 'DECREMENT':
-    return state - 1;
-  default:
-    return state;
+              <h2 id="源码">源码</h2>
+<pre><code class="language-js">function bindActionCreator(actionCreator, dispatch) {
+  // 返回一个将 dispatch 和 actionCreator 绑定的函数
+  // 直接调用返回的函数可以直接分发 actionCreator 对应的 action
+  return function() {
+    return dispatch(actionCreator.apply(this, arguments))
   }
 }
 
-// 创建 Redux store 来存放应用的状态。
-// API 是 { subscribe, dispatch, getState }。
-let store = createStore(counter);
+export default function bindActionCreators(actionCreators, dispatch) {
+  // 如果 actionCreators 是函数，当做一个 actionCreator
+  // 直接返回 actionCreators 和 dispatch 的绑定
+  if (typeof actionCreators === 'function') {
+    return bindActionCreator(actionCreators, dispatch)
+  }
 
-// 可以手动订阅更新，也可以事件绑定到视图层。
-store.subscribe(() =&gt;
-  console.log(store.getState())
-);
+  // 如果 actionCreators 不是对象报错
+  if (typeof actionCreators !== 'object' || actionCreators === null) {
+    throw new Error(
+      `bindActionCreators expected an object or a function, instead received ${
+        actionCreators === null ? 'null' : typeof actionCreators
+      }. ` +
+        `Did you write &quot;import ActionCreators from&quot; instead of &quot;import * as ActionCreators from&quot;?`
+    )
+  }
 
-// 改变内部 state 惟一方法是 dispatch 一个 action。
-// action 可以被序列化，用日记记录和储存下来，后期还可以以回放的方式执行
-store.dispatch({ type: 'INCREMENT' });
-// 1
-store.dispatch({ type: 'INCREMENT' });
-// 2
-store.dispatch({ type: 'DECREMENT' });
-// 1
+  // 用于存放已绑定的 actionCreator 的对象
+  const boundActionCreators = {}
+  // 遍历 actionCreators
+  for (const key in actionCreators) {
+    // 取对应的 actionCreator
+    const actionCreator = actionCreators[key]
+    if (typeof actionCreator === 'function') {
+      // boundActionCreators 中设置与 actionCreators 相同的 key 为对应的 actionCreator 绑定函数
+      boundActionCreators[key] = bindActionCreator(actionCreator, dispatch)
+    }
+  }
+  return boundActionCreators
+}
 </code></pre>
 
             </div>
@@ -155,6 +151,15 @@ store.dispatch({ type: 'DECREMENT' });
                 
               </div>
             
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://Zero2key.github.io/post/9nKzwh1h5">
+                  <h3 class="post-title">
+                    Redux 源码解析-createStore
+                  </h3>
+                </a>
+              </div>
             
 
             

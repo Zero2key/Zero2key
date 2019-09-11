@@ -2,13 +2,61 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://Zero2key.github.io</id>
     <title>Zero2key&apos;s Blog</title>
-    <updated>2019-09-09T02:47:10.365Z</updated>
+    <updated>2019-09-11T12:34:05.459Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://Zero2key.github.io"/>
     <link rel="self" href="https://Zero2key.github.io/atom.xml"/>
     <logo>https://Zero2key.github.io/images/avatar.png</logo>
     <icon>https://Zero2key.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, Zero2key&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[Redux 源码解析-bindActionCreators]]></title>
+        <id>https://Zero2key.github.io/post/KVfXkLcIY</id>
+        <link href="https://Zero2key.github.io/post/KVfXkLcIY">
+        </link>
+        <updated>2019-09-11T12:08:15.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="源码">源码</h2>
+<pre><code class="language-js">function bindActionCreator(actionCreator, dispatch) {
+  // 返回一个将 dispatch 和 actionCreator 绑定的函数
+  // 直接调用返回的函数可以直接分发 actionCreator 对应的 action
+  return function() {
+    return dispatch(actionCreator.apply(this, arguments))
+  }
+}
+
+export default function bindActionCreators(actionCreators, dispatch) {
+  // 如果 actionCreators 是函数，当做一个 actionCreator
+  // 直接返回 actionCreators 和 dispatch 的绑定
+  if (typeof actionCreators === 'function') {
+    return bindActionCreator(actionCreators, dispatch)
+  }
+
+  // 如果 actionCreators 不是对象报错
+  if (typeof actionCreators !== 'object' || actionCreators === null) {
+    throw new Error(
+      `bindActionCreators expected an object or a function, instead received ${
+        actionCreators === null ? 'null' : typeof actionCreators
+      }. ` +
+        `Did you write &quot;import ActionCreators from&quot; instead of &quot;import * as ActionCreators from&quot;?`
+    )
+  }
+
+  // 用于存放已绑定的 actionCreator 的对象
+  const boundActionCreators = {}
+  // 遍历 actionCreators
+  for (const key in actionCreators) {
+    // 取对应的 actionCreator
+    const actionCreator = actionCreators[key]
+    if (typeof actionCreator === 'function') {
+      // boundActionCreators 中设置与 actionCreators 相同的 key 为对应的 actionCreator 绑定函数
+      boundActionCreators[key] = bindActionCreator(actionCreator, dispatch)
+    }
+  }
+  return boundActionCreators
+}
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Redux 源码解析-createStore]]></title>
         <id>https://Zero2key.github.io/post/9nKzwh1h5</id>
