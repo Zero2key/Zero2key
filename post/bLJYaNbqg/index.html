@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Redux 源码解析-简介 | Zero2key&#39;s Blog</title>
+<title>手写Promise-1 核心 | Zero2key&#39;s Blog</title>
 <link rel="shortcut icon" href="https://blog.zero2key.cn/favicon.ico?v=1570539530076">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
@@ -72,73 +72,46 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              Redux 源码解析-简介
+              手写Promise-1 核心
             </h2>
             <div class="post-info">
               <time class="post-time">
-                · 2019-09-07 ·
+                · 2019-10-08 ·
               </time>
               
-                <a href="https://blog.zero2key.cn/tag/redux" class="post-tag">
-                  # Redux
+                <a href="https://blog.zero2key.cn/tag/rY7YvLJW9" class="post-tag">
+                  # Promise
                 </a>
               
-                <a href="https://blog.zero2key.cn/tag/yuan-ma-jie-xi" class="post-tag">
-                  # 源码解析
+                <a href="https://blog.zero2key.cn/tag/jFL1PqmF8p" class="post-tag">
+                  # 手写
                 </a>
               
             </div>
             
             <div class="post-content">
-              <h2 id="简介">简介</h2>
-<p>Redux 是 JavaScript 状态容器，提供可预测化的状态管理。</p>
-<h2 id="安装">安装</h2>
-<pre><code class="language-bash">npm install redux --save
-# or
-yarn add redux
+              <h1 id="promise-简单实现">Promise 简单实现</h1>
+<pre><code class="language-js">const PromiseStatusMap = {
+  pending: 'pending',
+  resolved: 'resolved',
+  rejected: 'rejected'
+};
 </code></pre>
-<h2 id="概念">概念</h2>
-<p>Redux 中的 state 是以一个对象的形式存储在一个单一的 store 中。唯一可以更改 state 的方法是 dispatch 一个 action，一个描述发生了什么的对象。为了响应一个 action 如何修改 state，需要编写 reducers。</p>
-<pre><code class="language-js">import { createStore } from 'redux';
-
-/**
- * 这是一个 reducer，形式为 (state, action) =&gt; state 的纯函数。
- * 描述了 action 如何把 state 转变成下一个 state。
- */
-function counter(state = 0, action) {
-  switch (action.type) {
-  case 'INCREMENT':
-    return state + 1;
-  case 'DECREMENT':
-    return state - 1;
-  default:
-    return state;
-  }
-}
-
-// 创建 Redux store 来存放应用的状态。
-// API 是 { subscribe, dispatch, getState }。
-let store = createStore(counter);
-
-// 可以手动订阅更新，也可以事件绑定到视图层。
-store.subscribe(() =&gt;
-  console.log(store.getState())
-);
-
-// 改变内部 state 惟一方法是 dispatch 一个 action。
-// action 可以被序列化，用日记记录和储存下来，后期还可以以回放的方式执行
-store.dispatch({ type: 'INCREMENT' });
-// 1
-store.dispatch({ type: 'INCREMENT' });
-// 2
-store.dispatch({ type: 'DECREMENT' });
-// 1
-</code></pre>
+<p>Promise 有三种状态 <code>pending</code>、<code>resolved</code>、<code>rejected</code>，初始为 <code>pending</code>，会转变为 <code>resolved</code> 或 <code>rejected</code></p>
 
             </div>
           </article>
         </div>
 
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://blog.zero2key.cn/post/KVfXkLcIY">
+              <h3 class="post-title">
+                Redux 源码解析-bindActionCreators
+              </h3>
+            </a>
+          </div>
         
 
         

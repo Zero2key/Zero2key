@@ -2,13 +2,29 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.zero2key.cn</id>
     <title>Zero2key&apos;s Blog</title>
-    <updated>2019-09-16T01:59:38.109Z</updated>
+    <updated>2019-10-08T12:58:56.435Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.zero2key.cn"/>
     <link rel="self" href="https://blog.zero2key.cn/atom.xml"/>
     <logo>https://blog.zero2key.cn/images/avatar.png</logo>
     <icon>https://blog.zero2key.cn/favicon.ico</icon>
     <rights>All rights reserved 2019, Zero2key&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[手写Promise-1 核心]]></title>
+        <id>https://blog.zero2key.cn/post/bLJYaNbqg</id>
+        <link href="https://blog.zero2key.cn/post/bLJYaNbqg">
+        </link>
+        <updated>2019-10-08T12:48:16.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="promise-简单实现">Promise 简单实现</h1>
+<pre><code class="language-js">const PromiseStatusMap = {
+  pending: 'pending',
+  resolved: 'resolved',
+  rejected: 'rejected'
+};
+</code></pre>
+<p>Promise 有三种状态 <code>pending</code>、<code>resolved</code>、<code>rejected</code>，初始为 <code>pending</code>，会转变为 <code>resolved</code> 或 <code>rejected</code></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Redux 源码解析-bindActionCreators]]></title>
         <id>https://blog.zero2key.cn/post/KVfXkLcIY</id>
