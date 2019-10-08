@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.zero2key.cn</id>
     <title>Zero2key&apos;s Blog</title>
-    <updated>2019-10-08T12:58:56.435Z</updated>
+    <updated>2019-10-08T13:54:53.141Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.zero2key.cn"/>
     <link rel="self" href="https://blog.zero2key.cn/atom.xml"/>
@@ -23,6 +23,39 @@
 };
 </code></pre>
 <p>Promise 有三种状态 <code>pending</code>、<code>resolved</code>、<code>rejected</code>，初始为 <code>pending</code>，会转变为 <code>resolved</code> 或 <code>rejected</code></p>
+<pre><code class="language-js">const PromiseStatus = '[[PromiseStatus]]';
+const PromiseValue = '[[PromiseValue]]';
+</code></pre>
+<p>Promise 的 <code>[[PromiseStatus]]</code> 属性用于存贮状态，<code>[[PromiseValue]]</code> 属性用于存储 <code>resolved</code> 或 <code>rejected</code> 的值</p>
+<pre><code class="language-js">class P {
+  constructor(executor) {
+    this[PromiseStatus] = PromiseStatusMap.pending;
+    this[PromiseValue] = undefined;
+
+    const reject = reason =&gt; {
+      if (this[PromiseStatus] === PromiseStatusMap.pending) {
+        this[PromiseValue] = reason;
+        this[PromiseStatus] = PromiseStatusMap.rejected;
+      }
+    };
+
+    const resolve = value =&gt; {
+      if (value &amp;&amp; value.then &amp;&amp; typeof value.then === 'function') {
+        value.then(resolve, reject);
+        return;
+      }
+      if (this[PromiseStatus] === PromiseStatusMap.pending) {
+        this[PromiseValue] = value;
+        this[PromiseStatus] = PromiseStatusMap.resolved;
+      }
+    };
+
+    executor(resolve, reject);
+  }
+}
+</code></pre>
+<p>先看构造函数，构造函数中的内部函数 <code>resolve</code>、<code>reject</code> 修改 <code>P</code> 的状态并且将 <code>resolved</code> 或 <code>rejected</code> 的值存下来，仅修改 <code>pending</code> 状态的 <code>P</code>，修改一次后再次调用 <code>resolve</code> 或 <code>reject</code> 无效。</p>
+<p>如果 <code>resolve</code> 的值是 <code>thenable</code> 的，直接调用 <code>value.then</code>，传入 <code>resolve</code>、<code>reject</code>。</p>
 ]]></content>
     </entry>
     <entry>

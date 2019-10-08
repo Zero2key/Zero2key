@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>手写Promise-1 核心 | Zero2key&#39;s Blog</title>
-<link rel="shortcut icon" href="https://blog.zero2key.cn/favicon.ico?v=1570539530076">
+<link rel="shortcut icon" href="https://blog.zero2key.cn/favicon.ico?v=1570542059112">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://blog.zero2key.cn/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://blog.zero2key.cn">
-  <img class="avatar" src="https://blog.zero2key.cn/images/avatar.png?v=1570539530076" alt="">
+  <img class="avatar" src="https://blog.zero2key.cn/images/avatar.png?v=1570542059112" alt="">
   </a>
   <h1 class="site-title">
     Zero2key&#39;s Blog
@@ -98,6 +98,39 @@
 };
 </code></pre>
 <p>Promise 有三种状态 <code>pending</code>、<code>resolved</code>、<code>rejected</code>，初始为 <code>pending</code>，会转变为 <code>resolved</code> 或 <code>rejected</code></p>
+<pre><code class="language-js">const PromiseStatus = '[[PromiseStatus]]';
+const PromiseValue = '[[PromiseValue]]';
+</code></pre>
+<p>Promise 的 <code>[[PromiseStatus]]</code> 属性用于存贮状态，<code>[[PromiseValue]]</code> 属性用于存储 <code>resolved</code> 或 <code>rejected</code> 的值</p>
+<pre><code class="language-js">class P {
+  constructor(executor) {
+    this[PromiseStatus] = PromiseStatusMap.pending;
+    this[PromiseValue] = undefined;
+
+    const reject = reason =&gt; {
+      if (this[PromiseStatus] === PromiseStatusMap.pending) {
+        this[PromiseValue] = reason;
+        this[PromiseStatus] = PromiseStatusMap.rejected;
+      }
+    };
+
+    const resolve = value =&gt; {
+      if (value &amp;&amp; value.then &amp;&amp; typeof value.then === 'function') {
+        value.then(resolve, reject);
+        return;
+      }
+      if (this[PromiseStatus] === PromiseStatusMap.pending) {
+        this[PromiseValue] = value;
+        this[PromiseStatus] = PromiseStatusMap.resolved;
+      }
+    };
+
+    executor(resolve, reject);
+  }
+}
+</code></pre>
+<p>先看构造函数，构造函数中的内部函数 <code>resolve</code>、<code>reject</code> 修改 <code>P</code> 的状态并且将 <code>resolved</code> 或 <code>rejected</code> 的值存下来，仅修改 <code>pending</code> 状态的 <code>P</code>，修改一次后再次调用 <code>resolve</code> 或 <code>reject</code> 无效。</p>
+<p>如果 <code>resolve</code> 的值是 <code>thenable</code> 的，直接调用 <code>value.then</code>，传入 <code>resolve</code>、<code>reject</code>。</p>
 
             </div>
           </article>
