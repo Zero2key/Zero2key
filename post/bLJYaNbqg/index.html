@@ -4,7 +4,7 @@
 <meta name="description" content="" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>手写Promise-1 核心 | Zero2key&#39;s Blog</title>
-<link rel="shortcut icon" href="https://blog.zero2key.cn/favicon.ico?v=1570627177677">
+<link rel="shortcut icon" href="https://blog.zero2key.cn/favicon.ico?v=1570633816440">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://blog.zero2key.cn/styles/main.css">
@@ -20,7 +20,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://blog.zero2key.cn">
-  <img class="avatar" src="https://blog.zero2key.cn/images/avatar.png?v=1570627177677" alt="">
+  <img class="avatar" src="https://blog.zero2key.cn/images/avatar.png?v=1570633816440" alt="">
   </a>
   <h1 class="site-title">
     Zero2key&#39;s Blog
@@ -90,7 +90,7 @@
             </div>
             
             <div class="post-content">
-              <h1 id="promise-简单实现">Promise 简单实现</h1>
+              <h2 id="promise-简单实现">Promise 简单实现</h2>
 <pre><code class="language-js">const PromiseStatusMap = {
   pending: 'pending',
   resolved: 'resolved',
@@ -129,8 +129,297 @@ const PromiseValue = '[[PromiseValue]]';
   }
 }
 </code></pre>
-<p>先看构造函数，构造函数中的内部函数 <code>resolve</code>、<code>reject</code> 修改 <code>P</code> 的状态并且将 <code>resolved</code> 或 <code>rejected</code> 的值存下来，仅修改 <code>pending</code> 状态的 <code>P</code>，修改一次后再次调用 <code>resolve</code> 或 <code>reject</code> 无效。</p>
+<p>手写一个 Promise <code>P</code> 先看构造函数，构造函数中的内部函数 <code>resolve</code>、<code>reject</code> 修改 <code>P</code> 的状态并且将 <code>resolved</code> 或 <code>rejected</code> 的值存下来，仅修改 <code>pending</code> 状态的 <code>P</code>，修改一次后再次调用 <code>resolve</code> 或 <code>reject</code> 无效。</p>
 <p>如果 <code>resolve</code> 的值是 <code>thenable</code> 的，直接调用 <code>value.then</code>，传入 <code>resolve</code>、<code>reject</code>。</p>
+<pre><code class="language-js">then(onfulfilled, onrejected) {
+  if (this[PromiseStatus] === PromiseStatusMap.resolved &amp;&amp; onfulfilled) {
+    onfulfilled(this[PromiseValue])
+  } else if (this[PromiseStatus] === PromiseStatusMap.rejected &amp;&amp; onrejected) {
+    onrejected(this[PromiseValue])
+  }
+}
+
+catch(onrejected) {
+  if (this[PromiseStatus] === PromiseStatusMap.rejected &amp;&amp; onrejected) {
+    onrejected(this[PromiseValue])
+  }
+}
+</code></pre>
+<p>先不考虑 状态为 <code>pending</code> 的 <code>P</code>，<code>then</code> 和 <code>catch</code> 函数很简单。</p>
+<h2 id="完善-promise">完善 Promise</h2>
+<p><code>Promise</code> 的特点是可以链式调用，每次调用 <code>then</code> 和 <code>catch</code> 函数都会返回一个新的 <code>Promise</code>，如果 <code>Promise</code> 的 <code>then</code> 或 <code>catch</code> 中传入的回调函数为 <code>undefined</code> 或者 <code>null</code>，则将 <code>Promise</code> 的值向后传递。</p>
+<p>修改过后的 <code>then</code> 和 <code>catch</code> 如下：</p>
+<pre><code class="language-js">then(onfulfilled, onrejected) {
+  if (this[PromiseStatus] === PromiseStatusMap.resolved &amp;&amp; onfulfilled) {
+    return new P(resolve =&gt; {
+      resolve(onfulfilled(this[PromiseValue]));
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.resolved) {
+    return new P(resolve =&gt; {
+      resolve(this[PromiseValue]);
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.rejected &amp;&amp; onrejected) {
+    return new P(resolve =&gt; {
+      resolve(onrejected(this[PromiseValue]));
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.rejected) {
+    return new P((_, reject) =&gt; {
+      reject(this[PromiseValue]);
+    });
+  }
+}
+
+catch(onrejected) {
+  if (this[PromiseStatus] === PromiseStatusMap.resolved) {
+    return new P(resolve =&gt; {
+      resolve(this[PromiseValue]);
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.rejected &amp;&amp; onrejected) {
+    return new P(resolve =&gt; {
+      resolve(onrejected(this[PromiseValue]));
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.rejected) {
+    return new P((_, reject) =&gt; {
+      reject(this[PromiseValue]);
+    });
+  }
+}
+</code></pre>
+<p>但是当 <code>P</code> 的状态为 <code>pending</code> 时，如何返回一个新的 <code>P</code> 呢？</p>
+<p>只需要将 <code>onfulfilled</code>、<code>onrejected</code>，和新返回的 <code>P</code> 的 <code>resolve</code> 和 <code>reject</code> 保存下来，待当前 <code>P</code> 的 <code>resolve</code> 或 <code>reject</code> 调用时，将值向后传递。</p>
+<pre><code class="language-js">then(onfulfilled, onrejected) {
+  if (this[PromiseStatus] === PromiseStatusMap.pending) {
+    return new P((resolve, reject) =&gt; {
+      this.thenList.push({
+        resolve,
+        reject,
+        onfulfilled,
+        onrejected
+      });
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.resolved &amp;&amp; onfulfilled) {
+    return new P(resolve =&gt; {
+      resolve(onfulfilled(this[PromiseValue]));
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.resolved) {
+    return new P(resolve =&gt; {
+      resolve(this[PromiseValue]);
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.rejected &amp;&amp; onrejected) {
+    return new P(resolve =&gt; {
+      resolve(onrejected(this[PromiseValue]));
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.rejected) {
+    return new P((_, reject) =&gt; {
+      reject(this[PromiseValue]);
+    });
+  }
+}
+
+catch(onrejected) {
+  if (this[PromiseStatus] === PromiseStatusMap.pending) {
+    return new P((resolve, reject) =&gt; {
+      this.catchList.push({
+        resolve,
+        reject,
+        onrejected
+      });
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.resolved) {
+    return new P(resolve =&gt; {
+      resolve(this[PromiseValue]);
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.rejected &amp;&amp; onrejected) {
+    return new P(resolve =&gt; {
+      resolve(onrejected(this[PromiseValue]));
+    });
+  } else if (this[PromiseStatus] === PromiseStatusMap.rejected) {
+    return new P((_, reject) =&gt; {
+      reject(this[PromiseValue]);
+    });
+  }
+}
+</code></pre>
+<pre><code class="language-js">const reject = reason =&gt; {
+  setTimeout(() =&gt; {
+    if (this[PromiseStatus] === PromiseStatusMap.pending) {
+      this[PromiseValue] = reason;
+      this[PromiseStatus] = PromiseStatusMap.rejected;
+      this.thenList.forEach(t =&gt; {
+        if (t.onrejected) {
+          t.resolve(t.onrejected(this[PromiseValue]));
+        } else {
+          t.reject(this[PromiseValue]);
+        }
+      });
+      this.catchList.forEach(c =&gt; {
+        if (c.onrejected) {
+          c.resolve(c.onrejected(this[PromiseValue]));
+        } else {
+          c.reject(this[PromiseValue]);
+        }
+      });
+      this.thenList = [];
+      this.catchList = [];
+    }
+  });
+};
+
+const resolve = value =&gt; {
+  if (value &amp;&amp; value.then &amp;&amp; typeof value.then === 'function') {
+    value.then(resolve, reject);
+    return;
+  }
+  setTimeout(() =&gt; {
+    if (this[PromiseStatus] === PromiseStatusMap.pending) {
+      this[PromiseValue] = value;
+      this[PromiseStatus] = PromiseStatusMap.resolved;
+      this.thenList.forEach(t =&gt; {
+        if (t.onfulfilled) {
+          t.resolve(t.onfulfilled(this[PromiseValue]));
+        } else {
+          t.resolve(this[PromiseValue]);
+        }
+      });
+      this.catchList.forEach(c =&gt; {
+        c.resolve(this[PromiseValue]);
+      });
+    }
+  });
+};
+</code></pre>
+<p><code>Promise</code> 的传入的回调函数如果出现同步异常也会 <code>rejected</code>，如果 <code>Promise</code> <code>reject</code> 的值后面没有 <code>catched</code>，需要抛出 <code>UnCatchedError</code></p>
+<pre><code class="language-js">class UnCatchedError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'UnCatchedError';
+  }
+}
+</code></pre>
+<pre><code class="language-js">try {
+  executor(resolve, reject);
+} catch (e) {
+  if (e instanceof UnCatchedError) {
+    throw e;
+  }
+  return new P((_, reject) =&gt; {
+    reject(e);
+  });
+}
+</code></pre>
+<h2 id="精简">精简</h2>
+<p>将重复的逻辑提炼一下，最后如下：</p>
+<pre><code class="language-js">const PromiseStatus = '[[PromiseStatus]]';
+const PromiseValue = '[[PromiseValue]]';
+
+const PromiseStatusMap = {
+  pending: 'pending',
+  resolved: 'resolved',
+  rejected: 'rejected'
+};
+
+class UnCatchedError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'UnCatchedError';
+  }
+}
+
+class P {
+  constructor(executor) {
+    this[PromiseStatus] = PromiseStatusMap.pending;
+    this[PromiseValue] = undefined;
+    this.nextList = [];
+
+    const reject = reason =&gt; {
+      setTimeout(() =&gt; {
+        if (this[PromiseStatus] === PromiseStatusMap.pending) {
+          this[PromiseValue] = reason;
+          this[PromiseStatus] = PromiseStatusMap.rejected;
+          if (!this.nextList.length) {
+            throw new UnCatchedError(reason);
+          }
+          this.nextList.forEach(t =&gt; {
+            if (t.onrejected) {
+              t.resolve(t.onrejected(this[PromiseValue]));
+            } else {
+              t.reject(this[PromiseValue]);
+            }
+          });
+          this.nextList = [];
+        }
+      });
+    };
+    const resolve = value =&gt; {
+      if (value &amp;&amp; value.then &amp;&amp; typeof value.then === 'function') {
+        value.then(resolve, reject);
+        return;
+      }
+      setTimeout(() =&gt; {
+        if (this[PromiseStatus] === PromiseStatusMap.pending) {
+          this[PromiseValue] = value;
+          this[PromiseStatus] = PromiseStatusMap.resolved;
+          this.nextList.forEach(t =&gt; {
+            if (t.onfulfilled) {
+              t.resolve(t.onfulfilled(this[PromiseValue]));
+            } else {
+              t.resolve(this[PromiseValue]);
+            }
+          });
+          this.nextList = [];
+        }
+      });
+    };
+    try {
+      executor(resolve, reject);
+    } catch (e) {
+      if (e instanceof UnCatchedError) {
+        throw e;
+      }
+      return new P((_, reject) =&gt; {
+        reject(e);
+      });
+    }
+  }
+
+  _then(onfulfilled, onrejected) {
+    if (this[PromiseStatus] === PromiseStatusMap.pending) {
+      return new P((resolve, reject) =&gt; {
+        this.nextList.push({
+          resolve,
+          reject,
+          onfulfilled,
+          onrejected
+        });
+      });
+    } else if (this[PromiseStatus] === PromiseStatusMap.resolved &amp;&amp; onfulfilled) {
+      return new P(resolve =&gt; {
+        resolve(onfulfilled(this[PromiseValue]))
+      });
+    } else if (this[PromiseStatus] === PromiseStatusMap.resolved) {
+      return new P(resolve =&gt; {
+        resolve(this[PromiseValue]);
+      });
+    } else if (this[PromiseStatus] === PromiseStatusMap.rejected &amp;&amp; onrejected) {
+      return new P(resolve =&gt; {
+        resolve(onrejected(this[PromiseValue]));
+      });
+    } else if (this[PromiseStatus] === PromiseStatusMap.rejected) {
+      return new P((_, reject) =&gt; {
+        reject(this[PromiseValue]);
+      });
+    }
+  }
+
+  then(onfulfilled, onrejected) {
+    return this._then(onfulfilled, onrejected);
+  }
+
+  catch(onrejected) {
+    return this._then(undefined, onrejected);
+  }
+}
+</code></pre>
 
             </div>
           </article>
