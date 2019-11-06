@@ -2,13 +2,65 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.zero2key.cn</id>
     <title>Zero2key&apos;s Blog</title>
-    <updated>2019-10-09T15:15:49.052Z</updated>
+    <updated>2019-11-06T12:45:47.337Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.zero2key.cn"/>
     <link rel="self" href="https://blog.zero2key.cn/atom.xml"/>
     <logo>https://blog.zero2key.cn/images/avatar.png</logo>
     <icon>https://blog.zero2key.cn/favicon.ico</icon>
     <rights>All rights reserved 2019, Zero2key&apos;s Blog</rights>
+    <entry>
+        <title type="html"><![CDATA[手写Promise resolve,reject,race,all]]></title>
+        <id>https://blog.zero2key.cn/post/otVwh9xK0</id>
+        <link href="https://blog.zero2key.cn/post/otVwh9xK0">
+        </link>
+        <updated>2019-11-06T12:33:42.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="resolve">resolve</h2>
+<pre><code class="language-js">static resolve(value) {
+  return new P(resolve =&gt; resolve(value));
+}
+</code></pre>
+<p><code>resolve</code> 就是返回一个新的 <code>resolved Promise</code>。</p>
+<h2 id="reject">reject</h2>
+<pre><code class="language-js">static reject(reason) {
+  return new P((_, reject) =&gt; reject(reason));
+}
+</code></pre>
+<p><code>reject</code> 就是返回一个新的 <code>rejected Promise</code>。</p>
+<h2 id="all">all</h2>
+<pre><code class="language-js">static all(pArray) {
+  if (!Array.isArray(pArray)) {
+    throw new Error('Arguments is not Array');
+  }
+  return new P((resolve, reject) =&gt; {
+    const rets = Array(pArray.length);
+    let num = 0;
+    pArray.forEach((p, index) =&gt;
+      P.resolve(p).then(value =&gt; {
+        rets[index] = value;
+        num++;
+        if (num === pArray.length) {
+          resolve(rets);
+        }
+      }, reject)
+    );
+  });
+}
+</code></pre>
+<p><code>all</code> 稍微复杂一点，就是需要将 <code>pArray</code> 的所有值暂存下来，等所有的 <code>Promise</code> resolved，再将值返回去。</p>
+<h2 id="race">race</h2>
+<pre><code class="language-js">static race(pArray) {
+  if (!Array.isArray(pArray)) {
+    throw new Error('Arguments is not Array');
+  }
+  return new P((resolve, reject) =&gt; {
+    pArray.forEach(p =&gt; P.resolve(p).then(resolve, reject));
+  });
+}
+</code></pre>
+<p><code>race</code> 就是返回一个 <code>Promise</code>，完成的条件就是传入的 <code>Promise</code> 哪个完成了，就调用 <code>resolve</code>或 <code>reject</code>。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[手写Promise-1 核心]]></title>
         <id>https://blog.zero2key.cn/post/bLJYaNbqg</id>

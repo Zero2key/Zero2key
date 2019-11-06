@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>Promise | Zero2key&#39;s Blog</title>
+<title>手写Promise resolve,reject,race,all | Zero2key&#39;s Blog</title>
 <meta name="description" content="">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -13,6 +13,12 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://blog.zero2key.cn/styles/main.css">
 
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
 
 
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -90,28 +96,78 @@
 
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
-          <h2 class="current-tag">标签: Promise</h2>
-          
-            <article class="post-item">
-              <div class="left">
-                <a href="https://blog.zero2key.cn/post/bLJYaNbqg">
-                  <h2 class="post-title">手写Promise-1 核心</h2>
-                </a>
-                <div class="post-date">
-                  2019-10-08
-                </div>
-                <div class="post-abstract">
-                  
-                </div>
-              </div>
-              
-            </article>
-          
+          <div class="post-detail">
+            <h2 class="post-title">手写Promise resolve,reject,race,all</h2>
+            <div class="post-date">2019-11-06</div>
+            
+            <div class="post-content">
+              <h2 id="resolve">resolve</h2>
+<pre><code class="language-js">static resolve(value) {
+  return new P(resolve =&gt; resolve(value));
+}
+</code></pre>
+<p><code>resolve</code> 就是返回一个新的 <code>resolved Promise</code>。</p>
+<h2 id="reject">reject</h2>
+<pre><code class="language-js">static reject(reason) {
+  return new P((_, reject) =&gt; reject(reason));
+}
+</code></pre>
+<p><code>reject</code> 就是返回一个新的 <code>rejected Promise</code>。</p>
+<h2 id="all">all</h2>
+<pre><code class="language-js">static all(pArray) {
+  if (!Array.isArray(pArray)) {
+    throw new Error('Arguments is not Array');
+  }
+  return new P((resolve, reject) =&gt; {
+    const rets = Array(pArray.length);
+    let num = 0;
+    pArray.forEach((p, index) =&gt;
+      P.resolve(p).then(value =&gt; {
+        rets[index] = value;
+        num++;
+        if (num === pArray.length) {
+          resolve(rets);
+        }
+      }, reject)
+    );
+  });
+}
+</code></pre>
+<p><code>all</code> 稍微复杂一点，就是需要将 <code>pArray</code> 的所有值暂存下来，等所有的 <code>Promise</code> resolved，再将值返回去。</p>
+<h2 id="race">race</h2>
+<pre><code class="language-js">static race(pArray) {
+  if (!Array.isArray(pArray)) {
+    throw new Error('Arguments is not Array');
+  }
+  return new P((resolve, reject) =&gt; {
+    pArray.forEach(p =&gt; P.resolve(p).then(resolve, reject));
+  });
+}
+</code></pre>
+<p><code>race</code> 就是返回一个 <code>Promise</code>，完成的条件就是传入的 <code>Promise</code> 哪个完成了，就调用 <code>resolve</code>或 <code>reject</code>。</p>
 
-          <div class="pagination-container">
-  
-  
-</div>
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://blog.zero2key.cn/post/bLJYaNbqg">
+                  <h3 class="post-title">
+                    手写Promise-1 核心
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
 
         </div>
       </div>
@@ -133,6 +189,29 @@ var app = new Vue({
 })
 
 </script>
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '077888762ae810c37005',
+        clientSecret: 'c443e600f8e2687909ccd669db5353cd0839979a',
+        repo: 'Zero2key',
+        owner: 'Zero2key',
+        admin: ['Zero2key'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
 
 
 
